@@ -1,14 +1,14 @@
 import tkinter as tk
 from tkinter import messagebox
-import sqlite3   # The relational database system I will be using, it is not server based, I can avoid paying costs
+import sqlite3  # The relational database system I will be using, it is not server based, I can avoid paying costs
 # this way. I will be using a graphical interface to view my tables.
-import os
+import os  # Interacts  with the operating system, so I can create the database file in a path of my choice.
 
 
 class UserAuthenticationManager:
     def __init__(self):
         # Specifies location of the place I want the database file to  be
-        # This was as it was causing me issues as it was making the database file inside the authentication directory
+        # This is as it was causing me issues as it was making the database file inside the authentication directory
         projectRoot = "C:\\Users\\washb\\PycharmProjects\\RevisionPlatform"
         dbPath = os.path.join(projectRoot, "user_database.db")
 
@@ -18,8 +18,10 @@ class UserAuthenticationManager:
         except sqlite3.Error as e:
             print("SQLITE ERROR", e)
 
-
     def createTables(self):
+        """
+        method for creating tables and checking if one exists
+        """
         cursor = self.conn.cursor()
 
         # Creates table for students - this is only needed once if a computer does not have a database file.
@@ -77,27 +79,28 @@ class UserAuthenticationManager:
         cursor.execute("SELECT * FROM students WHERE email=?", (email,))
         existingStudent = cursor.fetchone()
 
-        print("Existing Student:", existingStudent) # debug: check value
+        print("Existing Student:", existingStudent)  # debug: check value
 
         # Basic email validation
         if existingStudent or not email.endswith("@gmail.com"):
             print("Email exists or Email is in wrong format")
-            return False   # Email exists or invalid email format
+            return False  # Email exists or invalid email format
 
         if len(password) < 8:
-            print("Invalid password length") # debug check
-            return False   # Invalid password length
+            print("Invalid password length")  # debug check
+            return False  # Invalid password length
 
         if len(username) > 15:
             print("Invalid username")
-            return False   # Invalid username length
+            return False  # Invalid username length
 
         # If the userType is a student, it will be allowed to complete the register function and insert the values into
         # the database.
         if userType == "student":
-            cursor.execute("INSERT INTO students (username, password, email) VALUES (?, ?, ?)", (username, password, email))
+            cursor.execute("INSERT INTO students (username, password, email) VALUES (?, ?, ?)",
+                           (username, password, email))
         else:
-            return False # cannot register as a teacher or invalid user type.
+            return False  # cannot register as a teacher or invalid user type.
 
         self.conn.commit()
         print("Registration successful")
@@ -107,8 +110,10 @@ class UserAuthenticationManager:
         if hasattr(self, "conn"):
             self.conn.close()
 
+
 # Create instance of class so methods can be accessed
 userAuth = UserAuthenticationManager()
+
 
 def openRegistrationWindow():
     """
@@ -116,6 +121,8 @@ def openRegistrationWindow():
     Displays input forms for username, password, email
     Validates this by calling on registerUser()
     """
+
+    # Initialising widgets and input forms.
     registrationWindow = tk.Toplevel(selectionWindow)
     registrationWindow.title("Register")
 
@@ -184,7 +191,6 @@ def displayLogin():
     passwordEntry = tk.Entry(loginWindow, show="*")
     passwordEntry.pack(pady=5)
 
-
     def authenticationLogin():
         enteredUsername = usernameEntry.get()
         enteredPassword = passwordEntry.get()
@@ -203,7 +209,6 @@ def displayLogin():
 # Create the main window for selection
 selectionWindow = tk.Tk()
 selectionWindow.title("Select Action ")
-
 
 # Widgets (Login Button, Register Button)
 loginButton = tk.Button(selectionWindow, text="Login", command=displayLogin)
