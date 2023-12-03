@@ -22,61 +22,94 @@ class UserAuthenticationManager:
             return True
         return False
 
-def authenticateUser():
+def openRegistrationWindow():
     """
+    opens registration window for a better UI
+    """
+    registrationWindow = tk.Toplevel()
+    registrationWindow.title("Register")
+
+    tk.Label(registrationWindow, text="Username: ").pack(pady=5)
+    usernameEntry = tk.Entry(registrationWindow)
+    usernameEntry.pack(pady=5)
+
+    tk.Label(registrationWindow, text="Password: ").pack(pady=5)
+    passwordEntry = tk.Entry(registrationWindow, show="*")
+    passwordEntry.pack(pady=5)
+
+    tk.Label(registrationWindow, text="Confirm Password: ").pack(pady=5)
+    confirmPasswordEntry = tk.Entry(registrationWindow, show="*")
+    confirmPasswordEntry.pack(pady=5)
+
+    def registerUser():
+        """
+        1) retrieves username and password from user
+        2) Validates this
+        """
+        enteredUsername = usernameEntry.get()
+        enteredPassword = passwordEntry.get()
+        confirmPassword = confirmPasswordEntry.get() # ** added confirmPassword entry
+
+        if enteredPassword != confirmPassword:
+            messagebox.showerror("Registration Error", "Passwords do not match") # ** added comparison to check passwords
+        elif UserAuthenticationManager.registerUser(enteredUsername, enteredPassword):
+            messagebox.showinfo("Registration", "Registration Successful")
+            registrationWindow.destroy()
+        else:
+            messagebox.showerror("Registration Error", "Username already exists")
+
+    registerButton = tk.Button(registrationWindow, text="Register", command=registerUser)
+    registerButton.pack(pady=10)
+
+
+
+def displayLogin():
+    """
+    1) Initialises login window
     1) Retrieves username and password from user
     2) Validates Credentials by calling on the class method authenticateuser
     """
 
-    enteredUsername = usernameEntry.get()
-    enteredPassword = passwordEntry.get()
+    loginWindow = tk.Toplevel(selectionWindow)
+    loginWindow.title("Login")
 
-    if UserAuthenticationManager.authenticateUser(enteredUsername, enteredPassword):
-        messagebox.showinfo("Authentication", "Login Successful")
-    else:
-        messagebox.showerror("Authentication", "Invalid Credentials")
+    tk.Label(loginWindow, text="username: ").pack(pady=5)
+    usernameEntry = tk.Entry(loginWindow)
+    usernameEntry.pack(pady=5)
 
-def registerUser():
-    """
-    1) retrieves username and password from user
-    2) Validates this
-    """
-    enteredUsername = usernameEntry.get()
-    enteredPassword = passwordEntry.get()
-    confirmPassword = confirmPasswordEntry.get() # ** added confirmPassword entry
+    tk.Label(loginWindow, text="Password: ").pack(pady=5)
+    passwordEntry = tk.Entry(loginWindow, show="*")
+    passwordEntry.pack(pady=5)
 
-    if enteredPassword != confirmPassword:
-        messagebox.showerror("Registration Error", "Passwords do not match") # ** added comparison to check passwords
-    elif UserAuthenticationManager.registerUser(enteredUsername, enteredPassword):
-        messagebox.showinfo("Registration", "Registration Successful")
-    else:
-        messagebox.showerror("Registration Error", "Username already exists")
+    def authenticationLogin():
+
+        enteredUsername = usernameEntry.get()
+        enteredPassword = passwordEntry.get()
+
+        if UserAuthenticationManager.authenticateUser(enteredUsername, enteredPassword):
+            messagebox.showinfo("Authentication", "Login Successful")
+        else:
+            messagebox.showerror("Authentication", "Invalid Credentials")
+
+    loginButton = tk.Button(loginWindow, text="Login", command=authenticationLogin)
+    loginButton.pack(pady=10)
 
 
-# Create the main window for login
-root = tk.Tk()
-root.title("Register and Login Page ")
 
-# Widgets (Username, Password, Login Button)
-tk.Label(root, text="Username: ").pack(pady=5)
-usernameEntry = tk.Entry(root)
-usernameEntry.pack(pady=5)
 
-tk.Label(root, text="Password: ").pack(pady=5)
-passwordEntry = tk.Entry(root, show="*")
-passwordEntry.pack(pady=5)
 
-tk.Label(root, text ="Confirm Passowrd: ").pack(pady=5)
-confirmPasswordEntry = tk.Entry(root, show="*")
-confirmPasswordEntry.pack(pady=5)
+# Create the main window for selection
+selectionWindow = tk.Tk()
+selectionWindow.title("Select Action ")
 
-loginButton = tk.Button(root, text="Login", command=authenticateUser)
+
+# Widgets (Login Button, Register Button)
+loginButton = tk.Button(selectionWindow, text="Login", command=displayLogin)
 loginButton.pack(pady=10)
 
-# added new button for register
-registerButton = tk.Button(root, text="Register", command=registerUser)
+registerButton = tk.Button(selectionWindow, text="Register", command=openRegistrationWindow)
 registerButton.pack(pady=10)
 
 # Start the Tkinter event loop
-root.mainloop()
+selectionWindow.mainloop()
 
