@@ -1,48 +1,94 @@
 import tkinter as tk
 from tkinter import messagebox
+import sqlite3   # RDMS
+
 
 class UserAuthenticationManager:
-    #dummy user credentials to check validation
-    validUsers = {"user123": {"password": "pass123", "email": "user123@gmail.com"}}
+    def __init__(self):
+        self.conn = sqlite3.connect("user_database.db")
+        self.createTables()
 
-    @classmethod
-    def authenticateUser(cls, username, password):
+    def createTables(self):
+        cursor = self.conn.cursor()
+
+        # Create a table for students
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS students (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE,
+                password TEXT,
+                email TEXT UNIQUE
+            )
+        """)
+
+        # Create a table for teachers
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS teachers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE,
+                password TEXT
+                email TEXT UNIQUE
+            )
+        """)
+
+        self.conn.commit()
+
+    def authenticateUser(self, username, password):
         """
-        class method for authenticating a user by comparing with dummy variable
+        class method for authenticating a user by comparing with database
+        """
+        cursor = self.conn.cursor()
+
+        # Check for student login
+        cursor.execute(f"SELECT * FROM students WHERE username=? AND password=?", (username, password))
+        student = cursor.fetchone()
+
+        if student:
+            return "student", True
+
+        # Check for teacher login
+        cursor.execute("SELECT * FROM teachers WHERE username=? AND password=?", (username, password))
+        teacher = cursor.fetchone()
+
+        if teacher:
+            return "teacher", True
+
+        return None, False
+
+    def registerUser(self, username, password, email, userType):
+        """
+        class method for validating a new account
         """
 
-        if username in cls.validUsers and cls.validUsers[username]["password"] == password:
-            return True
-        return False
-
-    @classmethod
-    def registerUser(cls, username, password, email):
-        """
-        class method for checking if username is not taken.
-        """
+        cursor = self.conn.cursor()
 
         # Check if email is already associated with an account, checks if username is already associated.
-        existingUsers = [user for user in cls.validUsers.values() if user["email"] == email]
+        cursor.execute("SELECT * FROM students WHERE email=?", (email,))
+        existingUser = cursor.fetchone()
 
         # Basic email validation
-        if existingUsers or username in cls.validUsers or not email.endswith("@gmail.com"):
-            return False # email or username exists or invalid email format
+        if existingUser or not email.endswith("@gmail.com"):
+            return False   # email exists or invalid email format
 
         # Basic username length check
         if len(password) < 8:
-            return False # Invalid password
+            return False   # Invalid password
 
         if len(username) > 15:
-            return False # Invalid username length
+            return False   # Invalid username length
 
-        elif username not in cls.validUsers:
-            cls.validUsers[username] = {"password":password, "email":email }
-            return True # registration accepted
+        cursor.execute("INSERT INTO students (username, password, email) VALUES (?, ?, ?", (username, password, email))
+        self.conn.commit()
+        return True
 
+    def __del__(self):
+        self.conn.close()
 
 def openRegistrationWindow():
     """
     Opens registration window for a better UI
+    Retrieves username and password from user
+    Validates this by calling on registerUser()
     """
     registrationWindow = tk.Toplevel(selectionWindow)
     registrationWindow.title("Register")
@@ -70,28 +116,33 @@ def openRegistrationWindow():
         """
         enteredUsername = usernameEntry.get()
         enteredPassword = passwordEntry.get()
-        confirmPassword = confirmPasswordEntry.get() # ** added confirmPassword entry
+        confirmPassword = confirmPasswordEntry.get()
         enteredEmail = emailEntry.get()
 
-
         if enteredPassword != confirmPassword:
-            messagebox.showerror("Registration Error", "Passwords do not match") # ** added comparison to check passwords
-        elif UserAuthenticationManager.registerUser(enteredUsername, enteredPassword, enteredEmail):
-            messagebox.showinfo("Registration", "Registration Successful")
-            registrationWindow.destroy()
+            messagebox.showerror("Registration Error", "Passwords do not match") # Comparison to check passwords
         else:
-            messagebox.showerror("Registration Error", "Registration Failed, Try Again. ")
+            userType, success = UserAuthenticationManager.registerUser(enteredUsername, enteredPassword, enteredEmail)
+            if success:
+                messagebox.showinfo("Registration", f"Registration Successful for {userType.capitalize()}")
+
+                if userType == "teacher":
+                    registrationWindow.destroy() # Close teacher registration as not allowed
+
+            else:
+                messagebox.showerror("Registration Error", "Registration Failed, Try Again. ")
+
+            registrationWindow.destroy()
 
     registerButton = tk.Button(registrationWindow, text="Register", command=registerUser)
     registerButton.pack(pady=10)
-
 
 
 def displayLogin():
     """
     1) Initialises login window
     1) Retrieves username and password from user
-    2) Validates Credentials by calling on the class method authenticateuser
+    2) Validates Credentials by calling on the class method authenticateUser
     """
 
     loginWindow = tk.Toplevel(selectionWindow)
@@ -107,20 +158,21 @@ def displayLogin():
 
 
     def authenticationLogin():
-
         enteredUsername = usernameEntry.get()
         enteredPassword = passwordEntry.get()
 
-        if UserAuthenticationManager.authenticateUser(enteredUsername, enteredPassword):
+        # Create instance of class
+        authManager = UserAuthenticationManager()
+
+        userType, success = authManager.authenticateUser(enteredUsername, enteredPassword)
+
+        if success:
             messagebox.showinfo("Authentication", "Login Successful")
         else:
             messagebox.showerror("Authentication", "Invalid Credentials")
 
     loginButton = tk.Button(loginWindow, text="Login", command=authenticationLogin)
     loginButton.pack(pady=10)
-
-
-
 
 
 # Create the main window for selection
@@ -137,4 +189,3 @@ registerButton.pack(pady=10)
 
 # Start the Tkinter event loop
 selectionWindow.mainloop()
-
