@@ -5,7 +5,7 @@ import sqlite3  # The relational database system I will be using, it is not serv
 import os  # Interacts  with the operating system, so I can create the database file in a path of my choice.
 
 
-class UserAuthenticationManager:
+class UserManager:
     def __init__(self):
         # Specifies location of the place I want the database file to  be
         # This is as it was causing me issues as it was making the database file inside the authentication directory
@@ -112,7 +112,7 @@ class UserAuthenticationManager:
 
 
 # Create instance of class so methods can be accessed
-userAuth = UserAuthenticationManager()
+userAuth = UserManager()
 
 
 def openRegistrationWindow():
@@ -191,7 +191,7 @@ def displayLogin():
     passwordEntry = tk.Entry(loginWindow, show="*")
     passwordEntry.pack(pady=5)
 
-    def authenticationLogin():
+    def loginUser():
         enteredUsername = usernameEntry.get()
         enteredPassword = passwordEntry.get()
 
@@ -202,7 +202,7 @@ def displayLogin():
         else:
             messagebox.showerror("Authentication", "Invalid Credentials")
 
-    loginButton = tk.Button(loginWindow, text="Login", command=authenticationLogin)
+    loginButton = tk.Button(loginWindow, text="Login", command=loginUser)
     loginButton.pack(pady=10)
 
 

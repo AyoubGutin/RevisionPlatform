@@ -1,20 +1,19 @@
 import unittest
-
 import self
 
-from userAuthentication.registrationAndLogin import UserAuthenticationManager, openRegistrationWindow, displayLogin
+from userAuthentication.registrationAndLogin import UserManager, openRegistrationWindow, displayLogin
 
 
 class TestUserAuthentication(unittest.TestCase):
     def setUp(self):
-        self.authManager = UserAuthenticationManager()
+        self.authManager = UserManager()
 
     def tearDown(self):
         del self.authManager
 
     def testRegisterUser(self):
         # Test successful registration
-        result = self.authManager.registerCheck("testUser", "testPassword", "testUser@gmail.com", "student")
+        result = self.authManager.registerCheck("testUser", "testPassword", "testUser@gmail.com", "student") # make email and usernamd rnadom
         self.assertTrue(result)
 
         # Test registration with duplicate email
