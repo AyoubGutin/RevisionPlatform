@@ -24,23 +24,24 @@ class UserManager:
         """
         cursor = self.conn.cursor()
 
-        # Creates table for students - this is only needed once if a computer does not have a database file.
+        # Create table for teachers - this is only needed once if a computer does not have a database file.
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS students (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+            CREATE TABLE IF NOT EXISTS teachers (
+                teacherID INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE,
                 password TEXT,
                 email TEXT UNIQUE
             )
         """)
-
-        # Create table for teachers - this is only needed once if a computer does not have a database file.
+        # Creates table for students - this is only needed once if a computer does not have a database file.
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS teachers (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+            CREATE TABLE IF NOT EXISTS students (
+                studentID INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE,
                 password TEXT,
-                email TEXT UNIQUE
+                email TEXT UNIQUE,
+                teacherID INTEGER, 
+                FOREIGN KEY (teacherID) REFERENCES teachers(teacherID)
             )
         """)
 
@@ -97,8 +98,12 @@ class UserManager:
         # If the userType is a student, it will be allowed to complete the register function and insert the values into
         # the database.
         if userType == "student":
-            cursor.execute("INSERT INTO students (username, password, email) VALUES (?, ?, ?)",
-                           (username, password, email))
+            cursor.execute("SELECT teacherID FROM teachers ORDER BY teacherID LIMIT 1")
+            teacherID = cursor.fetchone()
+            teacherID = teacherID[0]  # extract teacherID from the tuple fetchone created
+            print(teacherID)
+            cursor.execute("INSERT INTO students (username, password, email, teacherID) VALUES (?, ?, ?, ?)",
+                           (username, password, email, teacherID,))
         else:
             return False  # cannot register as a teacher or invalid user type.
 
@@ -175,11 +180,11 @@ def openRegistrationWindow():
 def displayLogin():
     """
     1) Initialises login window
-    1) Retrieves username and password from user
-    2) Validates Credentials by calling on the class method authenticateUser
+    2) Retrieves username and password from user
+    3) Validates Credentials by calling on the class method authenticateUser
     """
 
-    # Sets up the graphical interface for the login section when a user clicks on login in the homepage.
+    # Sets up graphical interface for the login section when a user clicks on login in the homepage.
     loginWindow = tk.Toplevel(selectionWindow)
     loginWindow.title("Login")
 
@@ -207,15 +212,28 @@ def displayLogin():
 
 
 # Create the main window for selection
+bgColour = "#A9C6B8"
 selectionWindow = tk.Tk()
 selectionWindow.title("Select Action ")
+selectionWindow.configure(bg=bgColour)
+selectionWindow.geometry("600x400")
+
+
+# Frame for buttons and headings
+frame = tk.Frame(selectionWindow, bg=bgColour)
+frame.pack(expand=True)
+
+# Heading
+headingColour = "#D9D9D9"
+heading = tk.Label(frame, text="Select your choice", font=("Cairo", 16), bg=headingColour)
+heading.pack()
 
 # Widgets (Login Button, Register Button)
-loginButton = tk.Button(selectionWindow, text="Login", command=displayLogin)
-loginButton.pack(pady=10)
+loginButton = tk.Button(frame, text="Login", command=displayLogin, height=5, width=15)
+loginButton.pack(side="bottom", padx=15, pady=15)
 
-registerButton = tk.Button(selectionWindow, text="Register", command=openRegistrationWindow)
-registerButton.pack(pady=10)
+registerButton = tk.Button(frame, text="Register", command=openRegistrationWindow, height=5, width=15)
+registerButton.pack(side="top", padx=15, pady=15)
 
 # Start the Tkinter event loop
 selectionWindow.mainloop()
