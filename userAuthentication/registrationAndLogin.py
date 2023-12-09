@@ -3,6 +3,7 @@ from tkinter import messagebox
 import sqlite3  # The relational database system I will be using, it is not server based, I can avoid paying costs
 # this way. I will be using a graphical interface to view my tables.
 import os  # Interacts  with the operating system, so I can create the database file in a path of my choice.
+import hashlib  # Library for hashing algorithms
 
 
 class UserManager:
@@ -95,15 +96,19 @@ class UserManager:
             print("Invalid username")
             return False  # Invalid username length
 
-        # If the userType is a student, it will be allowed to complete the register function and insert the values into
-        # the database.
         if userType == "student":
+            # Encode password and send to md5()
+            hashPass = hashlib.md5(password.encode()).hexdigest()
+
+            # Extract teacherID
             cursor.execute("SELECT teacherID FROM teachers ORDER BY teacherID LIMIT 1")
             teacherID = cursor.fetchone()
-            teacherID = teacherID[0]  # extract teacherID from the tuple fetchone created
-            print(teacherID)
+            teacherID = teacherID[0]
+
+            # Insert values
             cursor.execute("INSERT INTO students (username, password, email, teacherID) VALUES (?, ?, ?, ?)",
-                           (username, password, email, teacherID,))
+                           (username, hashPass, email, teacherID,))
+
         else:
             return False  # cannot register as a teacher or invalid user type.
 
@@ -200,7 +205,9 @@ def displayLogin():
         enteredUsername = usernameEntry.get()
         enteredPassword = passwordEntry.get()
 
-        userType, success = userAuth.authenticateUser(enteredUsername, enteredPassword)
+        hashPassword = hashlib.md5(enteredPassword.encode()).hexdigest()
+
+        userType, success = userAuth.authenticateUser(enteredUsername, hashPassword)
 
         if success:
             messagebox.showinfo("Authentication", "Login Successful")
