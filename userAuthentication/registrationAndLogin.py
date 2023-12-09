@@ -205,8 +205,10 @@ def displayLogin():
         enteredUsername = usernameEntry.get()
         enteredPassword = passwordEntry.get()
 
+        # hash password to compare
         hashPassword = hashlib.md5(enteredPassword.encode()).hexdigest()
 
+        # Calls on authenticateUser to return a tuple of the userType, and the success of the check.
         userType, success = userAuth.authenticateUser(enteredUsername, hashPassword)
 
         if success:
