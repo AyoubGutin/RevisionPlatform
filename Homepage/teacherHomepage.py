@@ -86,6 +86,3 @@ def openHomePage():
     root = tk.Tk()
     teacherPage = TeacherPage(root)
     root.mainloop()
-
-
-openHomePage()

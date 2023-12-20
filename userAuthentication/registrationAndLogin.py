@@ -6,6 +6,7 @@ import os  # Interacts  with the operating system, so I can create the database 
 import hashlib  # Library for hashing algorithms
 
 
+
 class UserManager:
     def __init__(self):
         # Specifies location of the place I want the database file to  be
@@ -211,8 +212,18 @@ def displayLogin():
         # Calls on authenticateUser to return a tuple of the userType, and the success of the check.
         userType, success = userAuth.authenticateUser(enteredUsername, hashPassword)
 
-        if success:
-            messagebox.showinfo("Authentication", "Login Successful")
+        if success and userType == "teacher":
+            messagebox.showinfo("Authentication", "Login Successful: Teacher Account")
+            selectionWindow.destroy()
+            from Homepage import teacherHomepage
+            teacherHomepage.openHomePage()
+
+        elif success and userType == "student":
+            messagebox.showinfo("Authentication", "Login Successful: Student Account")
+            selectionWindow.destroy()
+            from Homepage import studentHomepage
+            studentHomepage.openHomePage()
+
         else:
             messagebox.showerror("Authentication", "Invalid Credentials")
 
@@ -245,4 +256,8 @@ registerButton = tk.Button(frame, text="Register", command=openRegistrationWindo
 registerButton.pack(side="top", padx=15, pady=15)
 
 # Start the Tkinter event loop
-selectionWindow.mainloop()
+badInput = True
+while badInput:
+    selectionWindow.mainloop()
+
+

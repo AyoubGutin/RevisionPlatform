@@ -86,5 +86,3 @@ def openHomePage():
     studentPage = StudentPage(root)
     root.mainloop()
 
-
-openHomePage()
