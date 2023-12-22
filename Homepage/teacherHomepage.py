@@ -1,4 +1,5 @@
 import tkinter as tk
+from Assignments.createAssignment import CreateNewAssignment
 
 bgColour = "#A9C6B8"
 headingColour = "#D9D9D9"
@@ -38,7 +39,7 @@ class TeacherPage:
 
     def openCreateNewAssignmentWindow(self):
         createNewAssignmentWindow = tk.Toplevel(self.parent)
-        CreateNewAssignmentWindow(createNewAssignmentWindow)
+        CreateNewAssignment(createNewAssignmentWindow)
 
     def openYourAssignmentsWindow(self):
         yourAssignmentsWindow = tk.Toplevel(self.parent)
@@ -50,19 +51,6 @@ class YourStudentsWindow:
     def __init__(self, parent):
         self.parent = parent
         parent.title("Your Students")
-        parent.configure(bg=bgColour)
-        parent.geometry("600x400")
-
-        self.frame = tk.Frame(parent, bg=bgColour)
-        self.frame.pack(expand=True)
-
-
-# Class to represent "Create New Assignment" window
-class CreateNewAssignmentWindow:
-    def __init__(self, parent):
-        self.parent = parent
-        parent.title("Create New Assignment")
-
         parent.configure(bg=bgColour)
         parent.geometry("600x400")
 

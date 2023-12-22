@@ -6,7 +6,6 @@ import os  # Interacts  with the operating system, so I can create the database 
 import hashlib  # Library for hashing algorithms
 
 
-
 class UserManager:
     def __init__(self):
         # Specifies location of the place I want the database file to  be
