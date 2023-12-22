@@ -7,7 +7,7 @@ headingColour = "#D9D9D9"
 
 
 class CreateNewAssignment:
-    def __int__(self, parent):
+    def __init__(self, parent):
         self.parent = parent
         parent.title("Create New Assignment")
         parent.configure(bg=bgColour)
@@ -15,6 +15,9 @@ class CreateNewAssignment:
 
         self.frame = tk.Frame(parent, bg=bgColour)
         self.frame.pack(expand=True)
+
+        self.heading = tk.Label(self.frame, text="Enter Assignment", font=("Cairo", 16), bg=headingColour)
+        self.heading.pack(fill="x")
 
         # Database connection
         projectRoot = "C:\\Users\\washb\\PycharmProjects\\RevisionPlatform"
@@ -25,6 +28,17 @@ class CreateNewAssignment:
             self.createTable()
         except sqlite3.Error as e:
             print("SQLITE ERROR", e)
+
+        # Entry for assignment
+        self.assignmentTextEntry = tk.Entry(self.frame)
+        self.assignmentTextEntry.pack(pady=10, padx=10)
+
+        self.deadlineEntry = tk.Entry(self.frame)
+        self.deadlineEntry.pack(pady=10, padx=10)
+
+        # Button to create new assignment
+        self.createAssignmentButton = tk.Button(self.frame, text="Create A New\n Assignment", command=self.createAssignment)
+        self.createAssignmentButton.pack(padx=15, pady=15)
 
     def createTable(self):
         """
@@ -38,10 +52,30 @@ class CreateNewAssignment:
                         assignmentID INTEGER PRIMARY KEY AUTOINCREMENT,
                         assignmentText TEXT UNIQUE,
                         deadline TEXT,
-                        teacherID INTEGER
+                        teacherID INTEGER,
                         FOREIGN KEY (teacherID) REFERENCES teachers(teacherID)
                     )
                 """)
         self.conn.commit()
 
+    def createAssignment(self):
+        """
+        Method to insert assignment into database
+        """
+        cursor = self.conn.cursor()
 
+        # Retrieve data from entry form
+        assignmentText = self.assignmentTextEntry.get()
+        deadline = self.deadlineEntry.get()
+
+        # There is only one teacher account.
+        teacherID = 0
+
+        cursor.execute("""
+            INSERT INTO assignments(assignmentText, deadline, teacherID)
+            VALUES (?, ?, ?)
+        """, (assignmentText, deadline, teacherID))
+
+        self.conn.commit()
+        print("Assignment Created")
+                       
