@@ -19,6 +19,21 @@ class CreateSession:
         self.heading = tk.Label(self.frame, text="New Session", font=("Cairo", 16), bg=headingColour)
         self.heading.pack(fill="x")
 
+        # Drop down menu for difficulty
+        self.difficultyLabel = tk.Label(self.frame, text="Select Difficulty", bg=bgColour)
+        self.difficultyLabel.pack(pady=10)
+
+        self.difficultyVariable = tk.StringVar()
+        self.difficultyVariable.set("1") # This is the default difficulty level
+
+        difficultyOptions = ["1", "2", "3"]
+        self.difficultyMenu = tk.OptionMenu(self.frame, self.difficultyVariable, *difficultyOptions)
+        self.difficultyMenu.pack(pady=20)
+
+        # Button for starting a session
+        self.startSession = tk.Button(self.frame, text="Start Session!", command=self.insertQuestionSession)
+        self.startSession.pack(side="bottom")
+
         # Database connection
         projectRoot = "C:\\Users\\washb\\PycharmProjects\\RevisionPlatform"
         dbPath = os.path.join(projectRoot, "user_database.db")
@@ -42,7 +57,7 @@ class CreateSession:
                         questionText TEXT UNIQUE,
                         answer TEXT,
                         isCorrect BOOLEAN,
-                        difficultyLevel INTEGER ,
+                        difficultyLevel TEXT,
                         points INTEGER
                     )
                 """)
@@ -56,12 +71,28 @@ class CreateSession:
                          sessionTime FLOAT,
                          sessionPoints INTEGER,
                          studentID INTEGER,
-                         questionID INTEGER,
                          FOREIGN KEY (studentID) REFERENCES students(studentID),
-                         FOREIGN KEY (questionID) REFERENCES questions(questionID)
                      )
                  """)
         self.conn.commit()
+
+        # Create table for QuestionSessionLinkQuestions table if it doesn't exist
+        cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS questionSessionLinkQuestions
+                    linkID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    questionSessionID INTEGER,
+                    questionID INTEGER,
+                    FOREIGN KEY questionSessionID REFERENCES questionSession(questionSessionID),
+                    FOREIGN KEY questionID REFERENCES questions(questionID)""")
+
+    def insertQuestionSession(self):
+        difficultyLevel = int(self.difficultyVariable.get())
+
+        cursor = self.conn.cursor()
+        pass
+
+    def startSession(self):
+        pass
 
 
 
