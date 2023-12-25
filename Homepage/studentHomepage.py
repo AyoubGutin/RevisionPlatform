@@ -1,4 +1,5 @@
 import tkinter as tk
+from Questions.createSession import CreateSession
 
 bgColour = "#A9C6B8"
 headingColour = "#D9D9D9"
@@ -38,7 +39,7 @@ class StudentPage:
 
     def openCreateNewSessionWindow(self):
         createNewSessionWindow = tk.Toplevel(self.parent)
-        CreateNewSessionWindow(createNewSessionWindow)
+        CreateSession(createNewSessionWindow)
 
     def openNewAssignmentsWindow(self):
         newAssignmentsWindow = tk.Toplevel(self.parent)
@@ -50,18 +51,6 @@ class YourSessionsWindow:
     def __init__(self, parent):
         self.parent = parent
         parent.title("Your Sessions")
-        parent.configure(bg=bgColour)
-        parent.geometry("600x400")
-
-        self.frame = tk.Frame(parent, bg=bgColour)
-        self.frame.pack(expand=True)
-
-
-# Class to represent "New Session" window
-class CreateNewSessionWindow:
-    def __init__(self, parent):
-        self.parent = parent
-        parent.title("Create New Session")
         parent.configure(bg=bgColour)
         parent.geometry("600x400")
 
