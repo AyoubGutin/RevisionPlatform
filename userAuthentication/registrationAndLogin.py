@@ -13,6 +13,8 @@ class UserManager:
         projectRoot = "C:\\Users\\washb\\PycharmProjects\\RevisionPlatform"
         dbPath = os.path.join(projectRoot, "user_database.db")
 
+        self.currentUser = None
+
         try:
             self.conn = sqlite3.connect(dbPath)
             self.createTables()
@@ -59,6 +61,8 @@ class UserManager:
         student = cursor.fetchone()
 
         if student:
+            # Sets currentUser property with info about logged-in user
+            self.currentUser = {"userType": "student", "userID": student[0]}
             return "student", True
 
         # Attempts to fetch the username and password entered from the database and checks if it returns True.
@@ -108,6 +112,8 @@ class UserManager:
             # Insert values
             cursor.execute("INSERT INTO students (username, password, email, teacherID) VALUES (?, ?, ?, ?)",
                            (username, hashPass, email, teacherID,))
+
+            self.currentUser = {"userType": "student", "userID": cursor.lastrowid}
 
         else:
             return False  # cannot register as a teacher or invalid user type.
@@ -255,8 +261,7 @@ registerButton = tk.Button(frame, text="Register", command=openRegistrationWindo
 registerButton.pack(side="top", padx=15, pady=15)
 
 # Start the Tkinter event loop
-badInput = True
-while badInput:
-    selectionWindow.mainloop()
+
+selectionWindow.mainloop()
 
 

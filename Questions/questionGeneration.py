@@ -58,12 +58,26 @@ def generateMathQuestion(difficulty):
     return question, answer, isCorrect, points
 
 
-def insertQuestion(question, answer, difficultyLevel, points):
+def insertQuestion(questionText, answer, isCorrect, points):
 
     # Database connection
     projectRoot = "C:\\Users\\washb\\PycharmProjects\\RevisionPlatform"
     dbPath = os.path.join(projectRoot, "user_database.db")
 
+    try:
+        conn = sqlite3.connect(dbPath)
+    except sqlite3.Error as e:
+        print("SQLITE ERROR", e)
 
+    difficultyLevel = 3
+    cursor = conn.cursor()
+    cursor.execute("""
+                    INSERT INTO questions(questionText, answer, isCorrect, difficultyLevel, points)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (questionText, answer, isCorrect, difficultyLevel, points))
 
-insertQuestion(generateMathQuestion(1))
+    conn.commit()
+
+for n in range(0,20):
+    question, answer, isCorrect, points = generateMathQuestion(3)
+    insertQuestion (question, answer, isCorrect, points)

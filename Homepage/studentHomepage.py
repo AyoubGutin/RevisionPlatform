@@ -1,4 +1,6 @@
 import tkinter as tk
+
+from userAuthentication.registrationAndLogin import userAuth
 from Questions.createSession import CreateSession
 
 bgColour = "#A9C6B8"
@@ -39,7 +41,8 @@ class StudentPage:
 
     def openCreateNewSessionWindow(self):
         createNewSessionWindow = tk.Toplevel(self.parent)
-        CreateSession(createNewSessionWindow)
+        CreateSession(createNewSessionWindow, userAuth)
+
 
     def openNewAssignmentsWindow(self):
         newAssignmentsWindow = tk.Toplevel(self.parent)

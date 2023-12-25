@@ -2,13 +2,15 @@ import os
 import tkinter as tk
 import sqlite3
 
+
 bgColour = "#A9C6B8"
 headingColour = "#D9D9D9"
 
 
 class CreateSession:
-    def __init__(self, parent):
+    def __init__(self, parent, userManager):
         self.parent = parent
+        self.userManager = userManager
         parent.title("Create New Session")
         parent.configure(bg=bgColour)
         parent.geometry("600x400")
@@ -71,31 +73,40 @@ class CreateSession:
                          sessionTime FLOAT,
                          sessionPoints INTEGER,
                          studentID INTEGER,
-                         FOREIGN KEY (studentID) REFERENCES students(studentID),
+                         FOREIGN KEY (studentID) REFERENCES students(studentID)
                      )
                  """)
         self.conn.commit()
 
         # Create table for QuestionSessionLinkQuestions table if it doesn't exist
         cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS questionSessionLinkQuestions
+                    CREATE TABLE IF NOT EXISTS questionSessionLinkQuestions (
                     linkID INTEGER PRIMARY KEY AUTOINCREMENT,
                     questionSessionID INTEGER,
                     questionID INTEGER,
-                    FOREIGN KEY questionSessionID REFERENCES questionSession(questionSessionID),
-                    FOREIGN KEY questionID REFERENCES questions(questionID)""")
+                    FOREIGN KEY (questionSessionID) REFERENCES questionSession(questionSessionID),
+                    FOREIGN KEY (questionID) REFERENCES questions(questionID)
+                    )
+                """)
 
     def insertQuestionSession(self):
+        """
+        Method for inserting data into the questionSession Table
+        """
         difficultyLevel = int(self.difficultyVariable.get())
-
         cursor = self.conn.cursor()
-        pass
+
+        # Access currentUser information from userManager instance
+        studentID = self.userManager.currentUser.get("userID", None)
+        print(studentID)
+
+        cursor.execute("""
+            INSERT INTO questionSession(difficultyLevel, sessionTime, sessionPoints, studentID)
+            VALUES (?, ?, ?, ?)
+            """, (difficultyLevel, 0, 0, studentID))
+
+        self.conn.commit()
+
 
     def startSession(self):
         pass
-
-
-
-
-
-
