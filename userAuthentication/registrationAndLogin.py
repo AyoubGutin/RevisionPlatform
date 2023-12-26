@@ -87,7 +87,7 @@ class UserManager:
 
         print("Existing Student:", existingStudent)  # debug: check value
 
-        # Basic email validation
+        # Basic validation
         if existingStudent or not email.endswith("@gmail.com"):
             print("Email exists or Email is in wrong format")
             return False  # Email exists or invalid email format

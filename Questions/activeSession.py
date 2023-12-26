@@ -26,12 +26,16 @@ class ActiveSession:
         self.question = tk.Label(self.frame, text="", font=("Cairo", 16), bg=bgColour)
         self.question.pack(pady=20)
 
+        self.indicator = tk.Label(self.frame, text="", font=("Cairo", 16), bg=bgColour)
+        self.indicator.pack(pady=25)
+
         self.answerEntry = tk.Entry(self.frame, width=100)
         self.answerEntry.insert(0, "Enter Answer")
         self.answerEntry.pack(pady=10, padx=10)
 
         self.confirmAnswer = tk.Button(self.frame, text="Submit Answer", command=self.compareCorrectAnswer)
         self.confirmAnswer.pack()
+
         # Database connection for use in methods.
         projectRoot = "C:\\Users\\washb\\PycharmProjects\\RevisionPlatform"
         dbPath = os.path.join(projectRoot, "user_database.db")
@@ -63,7 +67,7 @@ class ActiveSession:
         userAnswer = self.answerEntry.get()
 
         if userAnswer == self.correctAnswer:
-            print("Correct")
+            self.indicator.config(text="Correct!")
         else:
-            print(f"Wrong, the answer is {self.correctAnswer}")
+            self.indicator.config(text=(f"Wrong, the answer is {self.correctAnswer}"))
 
