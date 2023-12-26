@@ -1,16 +1,16 @@
 import os
 import tkinter as tk
 import sqlite3
-
+from Questions.activeSession import ActiveSession
 
 bgColour = "#A9C6B8"
 headingColour = "#D9D9D9"
 
 
 class CreateSession:
-    def __init__(self, parent, userManager):
+    def __init__(self, parent, userAuth):
         self.parent = parent
-        self.userManager = userManager
+        self.userAuth = userAuth
         parent.title("Create New Session")
         parent.configure(bg=bgColour)
         parent.geometry("600x400")
@@ -18,7 +18,7 @@ class CreateSession:
         self.frame = tk.Frame(parent, bg=bgColour)
         self.frame.pack(expand=True)
 
-        self.heading = tk.Label(self.frame, text="New Session", font=("Cairo", 16), bg=headingColour)
+        self.heading = tk.Label(self.frame, text="Create Session", font=("Cairo", 16), bg=headingColour)
         self.heading.pack(fill="x")
 
         # Drop down menu for difficulty
@@ -97,7 +97,7 @@ class CreateSession:
         cursor = self.conn.cursor()
 
         # Access currentUser information from userManager instance
-        studentID = self.userManager.currentUser.get("userID", None)
+        studentID = self.userAuth.currentUser.get("userID", None)
         print(studentID)
 
         cursor.execute("""
@@ -105,8 +105,21 @@ class CreateSession:
             VALUES (?, ?, ?, ?)
             """, (difficultyLevel, 0, 0, studentID))
 
-        self.conn.commit()
+        #self.conn.commit()
+
+        # Call openActiveSessionWindow class
+        openActiveSession = openActiveSessionWindow(self.parent, difficultyLevel, studentID)
 
 
-    def startSession(self):
-        pass
+class openActiveSessionWindow:
+    """
+    Class for opening the session window via a different file.
+    """
+    def __init__(self, parent, difficultyLevel, studentID):
+        self.parent = parent
+
+        activeSessionWindow = tk.Toplevel(self.parent)
+        ActiveSession(activeSessionWindow, difficultyLevel, studentID)
+
+
+
