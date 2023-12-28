@@ -105,7 +105,7 @@ class CreateSession:
             VALUES (?, ?, ?, ?)
             """, (difficultyLevel, 0, 0, studentID))
 
-        #self.conn.commit()
+        self.conn.commit()
 
         # Call openActiveSessionWindow class
         openActiveSession = openActiveSessionWindow(self.parent, difficultyLevel, studentID)

@@ -52,12 +52,12 @@ class ActiveSession:
         Method for retrieving random question and a correct answer.
         """
         cursor = self.conn.cursor()
-        cursor.execute("SELECT questionText, answer FROM questions WHERE difficultyLevel = ? ORDER BY RANDOM() LIMIT 1", (self.difficultyLevel,))
-        randomQuestion = cursor.fetchone()
-        self.conn.close()
+        cursor.execute("SELECT questionText, answer FROM questions WHERE difficultyLevel = ? ORDER BY RANDOM() LIMIT 1",
+                       (self.difficultyLevel,))
+        self.randomQuestion = cursor.fetchone()
 
-        self.question.config(text=randomQuestion[0])
-        self.correctAnswer = randomQuestion[1]
+        self.question.config(text=self.randomQuestion[0])
+        self.correctAnswer = self.randomQuestion[1]
 
     def compareCorrectAnswer(self):
         """
@@ -66,8 +66,15 @@ class ActiveSession:
         # Retrieve user answer
         userAnswer = self.answerEntry.get()
 
+        cursor = self.conn.cursor()
+
         if userAnswer == self.correctAnswer:
             self.indicator.config(text="Correct!")
+            cursor.execute("UPDATE questions SET isCorrect = 1 WHERE questionText = ?", (self.randomQuestion[0],))
+            self.conn.commit()
         else:
             self.indicator.config(text=(f"Wrong, the answer is {self.correctAnswer}"))
+            cursor.execute("UPDATE questions Set isCorrect = 0 WHERE questionText = ?", (self.randomQuestion[0],))
+            self.conn.commit()
+
 

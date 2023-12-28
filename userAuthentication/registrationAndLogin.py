@@ -260,7 +260,7 @@ loginButton.pack(side="bottom", padx=15, pady=15)
 registerButton = tk.Button(frame, text="Register", command=openRegistrationWindow, height=5, width=15)
 registerButton.pack(side="top", padx=15, pady=15)
 
-# Start the Tkinter event loop
+# Start the Tkinter  loop
 
 selectionWindow.mainloop()
 
