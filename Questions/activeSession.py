@@ -36,6 +36,9 @@ class ActiveSession:
         self.confirmAnswer = tk.Button(self.frame, text="Submit Answer", command=self.compareCorrectAnswer)
         self.confirmAnswer.pack()
 
+        self.endSessionButton = tk.Button(self.frame, text="End Session? ", command=self.endSession)
+        self.endSessionButton.pack(side="right")
+
         # Database connection for use in methods.
         projectRoot = "C:\\Users\\washb\\PycharmProjects\\RevisionPlatform"
         dbPath = os.path.join(projectRoot, "user_database.db")
@@ -61,20 +64,86 @@ class ActiveSession:
 
     def compareCorrectAnswer(self):
         """
-        Method for comparing correct answer with user answer
+        Method for:
+        comparing correct answer with user answer
         """
         # Retrieve user answer
         userAnswer = self.answerEntry.get()
 
         cursor = self.conn.cursor()
 
+        # Retrieve question and session ID
+        cursor.execute("SELECT questionID FROM questions WHERE questionText = ?", (self.randomQuestion[0],))
+        self.questionID = (cursor.fetchone()[0])
+
+        cursor.execute("SELECT questionSessionID from questionSession ORDER BY questionSessionID DESC LIMIT 1")
+        self.sessionID = (cursor.fetchone()[0])
+
+        # Compare correct answer
         if userAnswer == self.correctAnswer:
             self.indicator.config(text="Correct!")
             cursor.execute("UPDATE questions SET isCorrect = 1 WHERE questionText = ?", (self.randomQuestion[0],))
             self.conn.commit()
+
         else:
             self.indicator.config(text=(f"Wrong, the answer is {self.correctAnswer}"))
             cursor.execute("UPDATE questions Set isCorrect = 0 WHERE questionText = ?", (self.randomQuestion[0],))
             self.conn.commit()
+
+        cursor.execute("INSERT INTO questionSessionLinkQuestions(questionSessionID, questionID) VALUES (?, ?)",
+                       (self.sessionID, self.questionID))
+        self.conn.commit()
+
+        self.getQuestion()
+
+    def endSession(self):
+        """
+        Method to end session
+        """
+        self.parent.quit()
+
+    def getReport(self):
+        """
+        Retrieves:
+        - Amount of questions done
+        - Amount of questions right
+        - Questions that are wrong
+        - Amount of points
+        """
+        cursor = self.conn.cursor()
+
+        # Retrieve amount of questions
+        cursor.execute("SELECT COUNT(linkID) FROM questionSessionLinkQuestions WHERE sessionID = ?", (self.sessionID,))
+        questionCount = cursor.fetchone()[0]
+
+        # Retrieve amount of questions right (get questionID -> from questionID find how many isCorrect = 1)
+        cursor.execute("SELECT questionID FROM questionSessionLinkQuestions WHERE sessionID = ?", (self.sessionID,))
+        questionIDs = cursor.fetchall()
+
+        questionsRight = 0
+        questionsWrongList = []
+
+        for questionID in questionIDs:
+            cursor.execute("SELECT isCorrect FROM questions WHERE questionID = ?", (questionID,))
+            res = cursor.fetchone()[0]
+            if res == 1:
+                questionsRight += 1
+            # Retrieve what questions are wrong
+            else:
+                cursor.execute("SELECT questionText FROM questions WHERE questionID = ?", (questionID,))
+                res = cursor.fetchone()[0]
+                questionsWrongList.append(res)
+
+        points = questionsRight * self.difficultyLevel
+
+
+    def reportWindow(self, questionsRight, questionsWrongList, points):
+        self.heading.configure(text="Report")
+        pass
+
+
+
+
+
 
 
