@@ -182,7 +182,6 @@ def openRegistrationWindow():
                 messagebox.showerror("Registration Error", "Registration Failed, Try Again. ")
 
             registrationWindow.destroy()
-            userAuth.closeConnection()
 
     registerButton = tk.Button(registrationWindow, text="Register", command=registerUser)
     registerButton.pack(pady=10)

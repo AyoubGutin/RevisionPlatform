@@ -12,8 +12,8 @@ def generateMathQuestion(difficulty):
 
     if difficulty == 1:
         # Simple math questions that have operations
-        num1 = random.randint(1,30)
-        num2 = random.randint(1, 30)
+        num1 = random.randint(1,70)
+        num2 = random.randint(1, 90)
         operator = random.choice(operators)
         question = f"What Is {num1} {operator} {num2}?"
         answer = eval(f"{num1}{operator}{num2}")
@@ -79,5 +79,5 @@ def insertQuestion(questionText, answer, isCorrect, points):
     conn.commit()
 
 for n in range(0,20):
-    question, answer, isCorrect, points = generateMathQuestion(3)
+    question, answer, isCorrect, points = generateMathQuestion(1)
     insertQuestion (question, answer, isCorrect, points)

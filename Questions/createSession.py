@@ -33,6 +33,11 @@ class CreateSession:
         self.difficultyMenu.pack(pady=20)
 
         # Button for starting a session
+
+        self.startPersonalisedSession = tk.Button(self.frame, text="Start PERSONALISED Session!\n This will ignore the current difficulty!!") #command=pass)
+        self.startPersonalisedSession.pack(side="top")
+
+
         self.startSession = tk.Button(self.frame, text="Start Session!", command=self.insertQuestionSession)
         self.startSession.pack(side="bottom")
 
@@ -88,6 +93,32 @@ class CreateSession:
                     FOREIGN KEY (questionID) REFERENCES questions(questionID)
                     )
                 """)
+        self.conn.commit()
+
+        # Create table for personalised session
+        cursor.execute("""
+                             CREATE TABLE IF NOT EXISTS personalisedSession (
+                                 personalisedSessionID INTEGER PRIMARY KEY AUTOINCREMENT,
+                                 sessionTime FLOAT,
+                                 sessionPoints INTEGER,
+                                 studentID INTEGER,
+                                 FOREIGN KEY (studentID) REFERENCES students(studentID)
+                             )
+                """)
+
+        self.conn.commit()
+
+        # Create table for PersonalisedSessionLinkQuestions table if it doesn't exist
+        cursor.execute("""
+                      CREATE TABLE IF NOT EXISTS personalisedSessionLinkQuestions (
+                      linkID INTEGER PRIMARY KEY AUTOINCREMENT,
+                      personalisedSessionID INTEGER,
+                      questionID INTEGER,
+                      FOREIGN KEY (personalisedSessionID) REFERENCES personalisedSession(personalisedSessionID),
+                      FOREIGN KEY (questionID) REFERENCES questions(questionID)
+                      )
+              """)
+
 
     def insertQuestionSession(self):
         """

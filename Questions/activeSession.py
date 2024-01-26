@@ -100,6 +100,7 @@ class ActiveSession:
         """
         Method to end session
         """
+        self.getReport()
         self.parent.quit()
 
     def getReport(self):
@@ -113,17 +114,18 @@ class ActiveSession:
         cursor = self.conn.cursor()
 
         # Retrieve amount of questions
-        cursor.execute("SELECT COUNT(linkID) FROM questionSessionLinkQuestions WHERE sessionID = ?", (self.sessionID,))
+        cursor.execute("SELECT COUNT(linkID) FROM questionSessionLinkQuestions WHERE QuestionsessionID = ?", (self.sessionID,))
         questionCount = cursor.fetchone()[0]
 
         # Retrieve amount of questions right (get questionID -> from questionID find how many isCorrect = 1)
-        cursor.execute("SELECT questionID FROM questionSessionLinkQuestions WHERE sessionID = ?", (self.sessionID,))
+        cursor.execute("SELECT questionID FROM questionSessionLinkQuestions WHERE QuestionsessionID = ?", (self.sessionID,))
         questionIDs = cursor.fetchall()
 
         questionsRight = 0
         questionsWrongList = []
 
         for questionID in questionIDs:
+            questionID = questionID[0]
             cursor.execute("SELECT isCorrect FROM questions WHERE questionID = ?", (questionID,))
             res = cursor.fetchone()[0]
             if res == 1:
@@ -136,10 +138,29 @@ class ActiveSession:
 
         points = questionsRight * self.difficultyLevel
 
+        self.reportWindow(questionsRight, questionsWrongList, points)
+
 
     def reportWindow(self, questionsRight, questionsWrongList, points):
-        self.heading.configure(text="Report")
-        pass
+        """
+        Method for displaying the report
+        """
+        reportWindow = tk.Toplevel(self.parent)
+        reportWindow.title("Report")
+        reportWindow.config(background=bgColour)
+        reportWindow.geometry("600x400")
+
+        questionsRightText = tk.Label(reportWindow, text=("You have gotten " + str(questionsRight) + " questions Right"), font=("Cairo", 16), bg=bgColour)
+        questionsRightText.pack(pady=20)
+
+        questionsWrongText = tk.Label(reportWindow, text=('Questions Wrong: \n'
+                                                          , questionsWrongList), font=("Cairo", 16), bg=bgColour)
+        questionsWrongText.pack(pady=20)
+
+        pointsText = tk.Label(reportWindow, text=("You now have " + str(points) + " points"), font=("Cairo", 16), bg=bgColour)
+        pointsText.pack(pady=20)
+
+
 
 
 
