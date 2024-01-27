@@ -26,7 +26,7 @@ class CreateSession:
         self.difficultyLabel.pack(pady=10)
 
         self.difficultyVariable = tk.StringVar()
-        self.difficultyVariable.set("1") # This is the default difficulty level
+        self.difficultyVariable.set("1")  # This is the default difficulty level
 
         difficultyOptions = ["1", "2", "3"]
         self.difficultyMenu = tk.OptionMenu(self.frame, self.difficultyVariable, *difficultyOptions)
@@ -34,11 +34,12 @@ class CreateSession:
 
         # Button for starting a session
 
-        self.startPersonalisedSession = tk.Button(self.frame, text="Start PERSONALISED Session!\n This will ignore the current difficulty!!") #command=pass)
+        self.startPersonalisedSession = tk.Button(self.frame, text="Start PERSONALISED Session!\n This will ignore "
+                                                                   "the current difficulty!!",
+                                                  command=self.insertPersonalisedSession)
         self.startPersonalisedSession.pack(side="top")
 
-
-        self.startSession = tk.Button(self.frame, text="Start Session!", command=self.insertQuestionSession)
+        self.startSession = tk.Button(self.frame, text="Start Guest Session!", command=self.insertQuestionSession)
         self.startSession.pack(side="bottom")
 
         # Database connection
@@ -119,6 +120,7 @@ class CreateSession:
                       )
               """)
 
+        self.conn.commit()
 
     def insertQuestionSession(self):
         """
@@ -141,16 +143,33 @@ class CreateSession:
         # Call openActiveSessionWindow class
         openActiveSession = openActiveSessionWindow(self.parent, difficultyLevel, studentID)
 
+    def insertPersonalisedSession(self):
+        """
+        Method for inserting data into the personalisedSession Table
+        """
+        cursor = self.conn.cursor()
+
+        # Access currentUser information from userManager instance
+        studentID = self.userAuth.currentUser.get("userID", None)
+        print(studentID)
+
+        cursor.execute("""
+            INSERT INTO personalisedSession(sessionTime, sessionPoints, studentID)
+            VALUES (?, ?, ?)
+            """, (0, 0, studentID))
+
+        self.conn.commit()
+
+        # Call openActiveSessionWindow class
+        openActiveSession = openActiveSessionWindow(self.parent, 0, studentID)
 
 class openActiveSessionWindow:
     """
     Class for opening the session window via a different file.
     """
+
     def __init__(self, parent, difficultyLevel, studentID):
         self.parent = parent
 
         activeSessionWindow = tk.Toplevel(self.parent)
         ActiveSession(activeSessionWindow, difficultyLevel, studentID)
-
-
-
