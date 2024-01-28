@@ -163,6 +163,8 @@ class ActiveSession:
         - Amount of questions right
         - Questions that are wrong
         - Amount of points
+
+        Updates the session records
         """
         cursor = self.conn.cursor()
 
@@ -191,6 +193,9 @@ class ActiveSession:
                     questionsWrongList.append(res)
             points = questionsRight * self.difficultyLevel
 
+            cursor.execute("UPDATE questionSession SET sessionPoints = ? WHERE questionSessionID = ? ",
+                           (points, self.sessionID))
+
         if self.difficultyLevel == 0:
             # Retrieve amount of questions
             cursor.execute("SELECT COUNT(linkID) FROM personalisedSessionLinkQuestions WHERE personalisedSessionID = ?",
@@ -209,11 +214,13 @@ class ActiveSession:
                     questionsRight += 1
                 # Retrieve what questions are wrong
                 else:
-                    cursor.execute("SELECT questionText, points FROM questions WHERE questionID = ?", (questionID,))
+                    cursor.execute("SELECT questionText, sessionPoints FROM questions WHERE questionID = ?", (questionID,))
                     questionText = cursor.fetchone()[0]
                     points = cursor.fetchone()[1]
                     questionsWrongList.append(questionText)
                     totalPoints += points
+
+                cursor.execute("UPDATE personalisedSession SET points = ? WHERE personalisedSessionID = ? ", (points, self.sessionID))
 
 
         self.reportWindow(questionsRight, questionsWrongList, points)
