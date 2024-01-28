@@ -70,23 +70,23 @@ class ActiveSession:
             self.difficultyLevel = self.randomQuestion[2]
 
         # random questions, it will call on a personalised algorithm eventually
-        if self.difficultyLevel == 0:
-            if len(self.queue) < 5:
-                cursor.execute(
-                    "SELECT questionText, answer FROM questions ORDER BY RANDOM() LIMIT 1")
-                self.randomQuestion = cursor.fetchone()
+        elif len(self.queue) < 5:
+            cursor.execute(
+                "SELECT questionText, answer FROM questions ORDER BY RANDOM() LIMIT 1")
+            self.randomQuestion = cursor.fetchone()
 
-                self.question.config(text=self.randomQuestion[0])
-                self.correctAnswer = self.randomQuestion[1]
-                self.personalisedAlgorithm()
-            else:
-                self.personalisedAlgorithm()
+            self.question.config(text=self.randomQuestion[0])
+            self.correctAnswer = self.randomQuestion[1]
+            self.personalisedAlgorithm()
+        else:
+            self.personalisedAlgorithm()
 
     def compareCorrectAnswer(self):
         """
         Method for:
         comparing correct answer with user answer
         """
+        print(self.difficultyLevel)
         # Retrieve user answer
         userAnswer = self.answerEntry.get()
 
@@ -127,9 +127,14 @@ class ActiveSession:
             cursor.execute("INSERT INTO personalisedSessionLinkQuestions(personalisedSessionID, questionID) VALUES (?, ?)",
                            (self.sessionID, self.questionID))
 
-            self.personalisedAlgorithm()
+            if len(self.queue) >= 5 and self.isCorrect == 1:
+                self.queue.pop(0)
+                self.queueDisplay.config(text=self.queue)
+
+
 
         self.getQuestion()
+
 
     def personalisedAlgorithm(self):
         cursor = self.conn.cursor()
@@ -152,7 +157,6 @@ class ActiveSession:
             self.randomQuestion = cursor.fetchone()
             self.question.config(text=self.randomQuestion[0])
             self.correctAnswer = self.randomQuestion[1]
-            self.difficultyLevel = self.randomQuestion[2]
 
         self.answerEntry.delete(0, tk.END)
 
@@ -223,7 +227,7 @@ class ActiveSession:
                 cursor.execute("UPDATE personalisedSession SET points = ? WHERE personalisedSessionID = ? ", (points, self.sessionID))
 
 
-        self.reportWindow(questionsRight, questionsWrongList, points)
+        self.reportWindow(questionsRight, questionsWrongList, totalPoints)
 
 
     def reportWindow(self, questionsRight, questionsWrongList, points):
